@@ -25,15 +25,12 @@ public class Coordinator
     private static final String escapeURL;
     private static final String escapeHTM;
 
-	private static final String CRLF;
-
     private static final SimpleDateFormat timestamp;
-	private static final File appPath;
+
+	public static final File appPath;
 
 	static
     {
-		CRLF = System.getProperty("line.separator");
-
 		locale = ResourceBundle.getBundle("res.en-US");
 		mime = ResourceBundle.getBundle("res.mime");
 
@@ -52,8 +49,9 @@ public class Coordinator
 	private final ArrayList<ReadThread> readPool;
 
 	private final Queue<ServeThread> queue;
-
 	private final Semaphore queuer;
+
+	private Logger log;
 
 	/**
      * Incomming
@@ -123,7 +121,7 @@ public class Coordinator
 		return value;
     }
 
-	public void registerThread(Thread added)
+	public synchronized void registerThread(Thread added)
 	{
 		if (added instanceof ServeThread)
 		{
@@ -140,7 +138,7 @@ public class Coordinator
 		}
 	}
 
-	public void unregisterThread(Thread added)
+	public synchronized void unregisterThread(Thread added)
 	{
 		if (added instanceof ServeThread)
 		{
@@ -159,7 +157,6 @@ public class Coordinator
 
 	public ServeThread popServerQueue()
 	{
-
 		try
 		{
 			queuer.acquire();
@@ -272,7 +269,7 @@ public class Coordinator
 
 		String preProc = streamToString(openResource(getString("pages.listing")));
 
-		String postProc = preProc.replace("%PATH%", path.replace("/", "&#47;")).replace("%LIST%", str);
+		String postProc = preProc.replace("<%PATH%>", path.replace("/", "&#47;")).replace("<%LIST%>", str);
 
 		return new ByteArrayInputStream(postProc.getBytes());
     }
@@ -351,7 +348,7 @@ public class Coordinator
 		input.close();
     }
 
-	public void shutdown()
+	public synchronized void shutdown()
 	{
 		Iterator<ListenThread> i = listenPool.iterator();
 
@@ -488,71 +485,14 @@ public class Coordinator
 		return timestamp.format(new java.util.Date());
     }
 
-    public void logAndPrintRequest(HttpRequest request)
-    {
-		printRequest(request);
-		logRequest(request);
-    }
-
-    public void printRequest(HttpRequest req)
-    {
-		System.out.format(getString("out.print_request"),
-			getTimestamp(), req.source.getHostName(), req.port,
-			req.getValue(Key.KEEP_ALIVE), req.getValue(Key.RESOURCE));
-    }
-
-    public void logRequest(HttpRequest request)
-    {
-		StringBuffer str = new StringBuffer();
-
-		String item = getString("log.request_item") + CRLF;
-
-		for (int i = 0; i < request.requestArray.length; ++i)
-			str.append(String.format(item, request.requestArray[i]));
-
-		log(String.format(getString("log.request") + CRLF,
-			request.source.getHostName(), str.toString()));
-    }
-
-    private void log(String message)
-    {
-		File log = new File(appPath.getAbsolutePath() + getString("config.log"));
-
-		try
+	public synchronized Logger getLogger()
+	{
+		if (log == null)
 		{
-			if (!log.exists())
-				log.createNewFile();
-
-			PrintWriter out = new PrintWriter(new FileWriter(log, true));
-
-			out.format(getString("log.out"), getTimestamp(), message);
-			out.flush();
-			out.close();
+			log = new Logger();
+			Runtime.getRuntime().addShutdownHook(log);
 		}
-		catch (IOException ex)
-		{
-			System.err.println(getString("err.log_failure"));
-		}
-    }
 
-    protected void logErr(Exception ex)
-    {
-		File log = new File(appPath.getAbsolutePath() + getString("config.errlog"));
-
-		try
-		{
-			if (!log.exists())
-				log.createNewFile();
-
-			PrintWriter out = new PrintWriter(new FileWriter(log, true));
-
-			out.format(getString("log.err") + CRLF, getTimestamp(), ex.toString(), ex.getMessage());
-			out.flush();
-			out.close();
-		}
-		catch (IOException ex0)
-		{
-			System.err.println(getString("err.errlog_failure"));
-		}
-    }
+		return log;
+	}
 }

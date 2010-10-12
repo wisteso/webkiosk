@@ -42,8 +42,7 @@ public class ListenThread extends Thread
 
 			ex = new IOException("Error listening on port " + listenPort, ex);
 
-			System.err.println(ex.getMessage());
-			server.logErr(ex);
+			server.getLogger().logEx(ex);
 
 			throw ex;
 		}
@@ -52,11 +51,13 @@ public class ListenThread extends Thread
 	@Override
 	public void run()
 	{
-		System.out.format(Coordinator.getString("out.listen_started"), Coordinator.getTimestamp(), listenPort);
+		server.getLogger().logOut(String.format(
+				Coordinator.getString("out.listen_started"), listenPort));
 
 		listenLoop(listener);
 
-		System.out.format(Coordinator.getString("out.listen_terminated"), Coordinator.getTimestamp(), listenPort);
+		server.getLogger().logOut(String.format(
+				Coordinator.getString("out.listen_terminated"), listenPort));
 	}
 
 	public void halt()
@@ -69,8 +70,8 @@ public class ListenThread extends Thread
 		}
 		catch (IOException ex)
 		{
-			System.err.println(Coordinator.getString("err.listen_close_fail"));
-			server.logErr(ex);
+			server.getLogger().logErr(Coordinator.getString("err.listen_close_fail"));
+			server.getLogger().logEx(ex);
 		}
 	}
 
@@ -93,8 +94,8 @@ public class ListenThread extends Thread
 			{
 				if (isRunning)
 				{
-					System.err.println(Coordinator.getString("err.listen_accept_fail"));
-					server.logErr(ex);
+					server.getLogger().logErr(Coordinator.getString("err.listen_accept_fail"));
+					server.getLogger().logEx(ex);
 				}
 			}
 		}

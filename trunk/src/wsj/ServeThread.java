@@ -56,8 +56,8 @@ public class ServeThread extends Thread
 	{
 		server.registerThread(this);
 
-		System.out.format(Coordinator.getString("out.start_thread"),
-						Coordinator.getTimestamp(), this.getName());
+		server.getLogger().logOut(String.format(
+				Coordinator.getString("out.start_thread"), this.getName()));
 
 		while (isRunning)
 		{
@@ -65,13 +65,13 @@ public class ServeThread extends Thread
 			{
 				synchronized (this)
 				{
-					System.out.format(Coordinator.getString("out.waiting_thread"),
-						Coordinator.getTimestamp(), this.getName());
+					server.getLogger().logOut(String.format(
+							Coordinator.getString("out.waiting_thread"), this.getName()));
 
 					this.wait();
 
-					System.out.format(Coordinator.getString("out.notified_thread"),
-						Coordinator.getTimestamp(), this.getName());
+					server.getLogger().logOut(String.format(
+							Coordinator.getString("out.notified_thread"), this.getName()));
 				}
 
 				if (sock != null)
@@ -89,8 +89,8 @@ public class ServeThread extends Thread
 			}
 		}
 
-		System.out.format(Coordinator.getString("out.stop_thread"),
-						Coordinator.getTimestamp(), this.getName());
+		server.getLogger().logOut(String.format(
+				Coordinator.getString("out.stop_thread"), this.getName()));
 
 		server.unregisterThread(this);
 	}
@@ -129,7 +129,8 @@ public class ServeThread extends Thread
 
 				request = new HttpRequest(temp, sockOut.getInetAddress(), sockOut.getLocalPort());
 
-				server.logAndPrintRequest(request);
+				server.getLogger().logOut(Logger.requestToString(request));
+				server.getLogger().logRequest(Logger.requestToStringVerbose(request));
 
 				if (request.getValue(Key.METHOD).equals("GET"))
 				{
@@ -157,13 +158,13 @@ public class ServeThread extends Thread
 		}
 		catch (HttpRequest.BadRequestException ex)
 		{
-			System.err.println(Coordinator.getString("err.invalid_request") + ex);
-			server.logErr(ex);
+			server.getLogger().logErr(Coordinator.getString("err.invalid_request") + ex);
+			server.getLogger().logEx(ex);
 		}
 		catch (IOException ex)
 		{
-			System.err.println(Coordinator.getString("err.critical_fail") + ex);
-			server.logErr(ex);
+			server.getLogger().logErr(Coordinator.getString("err.critical_fail") + ex);
+			server.getLogger().logEx(ex);
 		}
 
 		try
@@ -173,8 +174,8 @@ public class ServeThread extends Thread
 		}
 		catch (IOException ex)
 		{
-			System.err.println(Coordinator.getString("err.serve_close") + ex);
-			server.logErr(ex);
+			server.getLogger().logErr(Coordinator.getString("err.serve_close") + ex);
+			server.getLogger().logEx(ex);
 		}
 	}
 }
