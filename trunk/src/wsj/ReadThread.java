@@ -46,7 +46,8 @@ public class ReadThread extends Thread
 				{
 					buffer = in.readLine();
 
-					if (buffer.length() <= 0) break;
+					if (buffer == null || buffer.length() <= 0)
+						break;
 
 					request.add(buffer);
 				}

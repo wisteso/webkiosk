@@ -29,7 +29,7 @@ public class ServeThread extends Thread
 		this.server = server;
 		this.isRunning = true;
 		
-		this.start();
+		this.start();	// FIXME start via register method or other way
 	}
 
 	public synchronized void serve(Socket in)

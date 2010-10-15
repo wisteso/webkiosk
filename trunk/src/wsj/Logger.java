@@ -95,7 +95,7 @@ public class Logger extends Thread
 
     public static String requestToStringVerbose(HttpRequest req)
     {
-		StringBuffer str = new StringBuffer();
+		StringBuilder str = new StringBuilder();
 
 		for (String s : req.requestArray)
 			str.append(String.format(log_request_item + CRLF, s));
