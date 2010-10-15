@@ -37,7 +37,7 @@ public class HttpRequest
 
 			this.port = port;
 			this.source = source;
-			this.requestArray = request;
+			this.requestArray = request.clone();
 		}
 		catch (Exception ex)
 		{
@@ -67,7 +67,7 @@ public class HttpRequest
 		ACCEPT_ENCODING, ACCEPT_CHARSET, KEEP_ALIVE, CONNECTION, REFERER
     }
 
-    public class BadRequestException extends Exception
+    public static class BadRequestException extends Exception
     {
 		public BadRequestException()
 		{
