@@ -5,7 +5,7 @@ package wsj;
  *
  * @author Will
  */
-public class Main
+public class RunnerMain
 {
     /**
      * @param args the command line arguments
