@@ -31,8 +31,6 @@ public class ListenThread extends Thread
 		try
 		{
 			listener = new ServerSocket(listenPort);
-
-			this.start();	// FIXME start via register method or other way
 		}
 		catch (IOException ex)
 		{

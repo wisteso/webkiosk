@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.ResourceBundle;
 import java.util.concurrent.Semaphore;
@@ -54,7 +55,7 @@ public class Coordinator
 	private Logger log;
 
 	/**
-     * Incomming
+     * Incoming
      *
      * @param port  the port that will be listened on
      */
@@ -70,12 +71,27 @@ public class Coordinator
 
 		this.queuer = new Semaphore(workerThreads, true);
 
+		addThreads(workerThreads, ports);
+    }
+
+	private void addThreads(Integer workerThreads, Integer[] ports) throws IOException
+	{
+		Thread temp;
+
 		for (int i = 0; i < workerThreads; ++i)
-			registerThread(new ServeThread(this));
+		{
+			temp = new ServeThread(this);
+			temp.start();
+			registerThread(temp);
+		}
 
 		for (Integer port : ports)
-			registerThread(new ListenThread(port, this));
-    }
+		{
+			temp = new ListenThread(port, this);
+			temp.start();
+			registerThread(temp);
+		}
+	}
 
 	public void startServer()
     {
@@ -184,7 +200,7 @@ public class Coordinator
 
 			registerThread(reader);
 
-			ArrayList<String> request = reader.read();
+			List<String> request = reader.read();
 
 			unregisterThread(reader);
 

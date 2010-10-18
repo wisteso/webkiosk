@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package wsj;
 
 import java.io.BufferedOutputStream;
@@ -17,9 +12,9 @@ import wsj.HttpRequest.Key;
  */
 public class ServeThread extends Thread
 {
-	private Socket sock;
+	private volatile Socket sock;
 
-	private Boolean isRunning;
+	private volatile Boolean isRunning;
 
 	private final Coordinator server;
 
@@ -28,17 +23,23 @@ public class ServeThread extends Thread
 		this.setName(this.getName().replace("Thread", "Worker"));
 		this.server = server;
 		this.isRunning = true;
-		
-		this.start();	// FIXME start via register method or other way
 	}
 
-	public synchronized void serve(Socket in)
+	public void serve(Socket in)
 	{
-		if (sock != null) return;
+		synchronized (this)
+		{
+			if (sock == null)
+			{
+				sock = in;
 
-		sock = in;
-
-		this.notify();
+				notify();
+			}
+			else
+			{
+				throw new IllegalStateException();
+			}
+		}
 	}
 
 	public void halt()
@@ -47,7 +48,8 @@ public class ServeThread extends Thread
 
 		synchronized (this)
 		{
-			this.notify();
+			if (getState() == State.WAITING)
+				notify();
 		}
 	}
 
@@ -68,24 +70,26 @@ public class ServeThread extends Thread
 					server.getLogger().logOut(String.format(
 							Coordinator.getString("out.waiting_thread"), this.getName()));
 
-					this.wait();
+					while (sock == null)
+						this.wait();
 
 					server.getLogger().logOut(String.format(
 							Coordinator.getString("out.notified_thread"), this.getName()));
-				}
 
-				if (sock != null)
-				{
 					serveRequests(sock);	// blocking method
-	
-					sock = null;
 
-					server.pushServerQueue(this);
+					sock = null;
 				}
 			}
 			catch (InterruptedException ex)
 			{
-				// Thread interrupted.
+				// TODO Put error string into resource file
+				server.getLogger().logErr("Server thread was unexpectedly interrupted: " + ex);
+				server.getLogger().logEx(ex);
+			}
+			finally
+			{
+				server.pushServerQueue(this);
 			}
 		}
 
