@@ -1,4 +1,4 @@
-package wsj;
+package http;
 
 import java.net.InetAddress;
 import java.util.HashMap;
