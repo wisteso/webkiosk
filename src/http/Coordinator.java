@@ -1,5 +1,5 @@
 
-package wsj;
+package http;
 
 import java.io.*;
 import java.net.Socket;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.ResourceBundle;
 import java.util.concurrent.Semaphore;
-import wsj.HttpRequest.Key;
+import http.HttpRequest.Key;
 
 /**
  * Simple Web Server
@@ -45,9 +45,9 @@ public class Coordinator
 		appPath = new File(System.getProperty("user.dir"));
     }
 	
-	private final ArrayList<ServeThread> servePool;
-	private final ArrayList<ListenThread> listenPool;
-	private final ArrayList<ReadThread> readPool;
+	private final List<ServeThread> servePool;
+	private final List<ListenThread> listenPool;
+	private final List<ReadThread> readPool;
 
 	private final Queue<ServeThread> queue;
 	private final Semaphore queuer;

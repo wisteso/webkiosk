@@ -1,10 +1,10 @@
-package wsj;
+package http;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
-import wsj.HttpRequest.Key;
+import http.HttpRequest.Key;
 
 /**
  *

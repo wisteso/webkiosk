@@ -1,11 +1,11 @@
 
-package wsj;
+package http;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import wsj.HttpRequest.Key;
+import http.HttpRequest.Key;
 
 /**
  *

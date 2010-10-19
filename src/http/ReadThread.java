@@ -1,4 +1,4 @@
-package wsj;
+package http;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class ReadThread extends Thread
 {
-    private final ArrayList<String> request;
+    private final List<String> request;
     private final BufferedReader in;
     private final Integer timeOut;
 
@@ -21,7 +21,7 @@ public class ReadThread extends Thread
 
     public ReadThread(Socket connection, int timeOut) throws IOException
     {
-		this.in = new BufferedReader(new InputStreamReader(connection.getInputStream()));;
+		this.in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 		this.request = new ArrayList<String>();
 		this.timeOut = timeOut;
 
